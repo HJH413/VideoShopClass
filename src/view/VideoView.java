@@ -6,6 +6,7 @@ import model.vo.Video;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Scanner;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.AbstractTableModel; 
@@ -82,7 +83,7 @@ public class VideoView extends JPanel
 					int row = tableVideo.getSelectedRow();
 					int col = 0;	// 검색한 열을 클릭했을 때 클릭한 열의 비디오번호
 					// Object -> Integer -> int 형변환
-					int vNum = ((Integer)tableVideo.getValueAt(row, col)).intValue();
+					int vNum = Integer.parseInt((String)tableVideo.getValueAt(row, col));
 					JOptionPane.showMessageDialog(null, vNum);
 					
 					 
@@ -173,10 +174,22 @@ public class VideoView extends JPanel
 	
 	// 비디오현황검색
 		public void searchVideo(){
-			JOptionPane.showMessageDialog(null, "검색");
+			//1.사용자의 선택하거나 입력값을 얻어오기
+			//2.선택한 순번을 얻오오기
+			int idx = comVideoSearch.getSelectedIndex(); // 순번은 selected
+			String word = tfVideoSearch.getText();
+
+			try {
+				tbModelVideo.data = model.searchVideo(idx, word);
+				tbModelVideo.fireTableDataChanged(); // 테이블에 데이터 내용 바뀌었다고 신호보내는 것
+			} catch (Exception e) {
+				System.out.println("비디오 검색 실패 : " + e.getMessage());
+				e.printStackTrace();
+			}
+
 		}
 		
-	
+	//JOptionPane.showMessageDialog(null, "검색");
 	//  화면설계 메소드
 	public void addLayout(){
 		//멤버변수의 객체 생성

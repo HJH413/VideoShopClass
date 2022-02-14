@@ -6,6 +6,8 @@ import model.vo.Video;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 
 public class VideoModel implements VideoDao{
 
@@ -45,5 +47,59 @@ public class VideoModel implements VideoDao{
 			ps.close();
 			con.close();
 		}
+	}
+
+
+	/*
+	함수명 : searchVideo
+	인자 : 검색 카테고리를 선택한 인덱스, 검색시 사용할 입력된 단어
+	리턴값 :
+	역할 :
+	 */
+
+	public ArrayList searchVideo(int idx, String word) throws Exception {
+		//2.연결객체 가져오기
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		Video v = new Video();
+
+		try{
+
+			con = DriverManager.getConnection(url,user,pass);
+			System.out.println("DB 연결 성공");
+			//3. sql문자
+			String [] columns = {"title", "director"};
+			String sql = " SELECT video_num, genre, title, director, actor "
+					+ " FROM video "
+					+ " WHERE " + columns[idx] + " like '%" + word + "%' " ;  // 컬럼 배열, 입력 단어
+
+			ps = con.prepareStatement(sql);
+			rs = ps.executeQuery();
+
+			ArrayList list = new ArrayList();
+
+			while(rs.next()) {
+				ArrayList temp = new ArrayList();
+
+				temp.add(rs.getString("video_num"));
+				temp.add(rs.getString("genre"));
+				temp.add(rs.getString("title"));
+				temp.add(rs.getString("director"));
+				temp.add(rs.getString("actor"));
+
+				list.add(temp);
+			}
+
+			return list;
+
+		}finally {
+			rs.close();
+			ps.close();
+			con.close();
+
+		}
+
+		//System.out.println("sql : " + sql); // 내가 입력한 sql문장이 맞는지 테스트
 	}
 }
