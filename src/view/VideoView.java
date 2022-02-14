@@ -41,7 +41,7 @@ public class VideoView extends JPanel
 		initStyle();
 		eventProc();
 		connectDB();	// DB연결
-	}
+	} // 화면
 	
 	public void connectDB(){	// DB연결
 		try {
@@ -51,7 +51,7 @@ public class VideoView extends JPanel
 			e.printStackTrace();
 		}
 
-	}
+	} // DB연결
 	
 	public void eventProc(){
 		// 체크박스가 눌렸을 때 tfInseftCount 가 쓸수있게됨
@@ -84,8 +84,16 @@ public class VideoView extends JPanel
 					int col = 0;	// 검색한 열을 클릭했을 때 클릭한 열의 비디오번호
 					// Object -> Integer -> int 형변환
 					int vNum = Integer.parseInt((String)tableVideo.getValueAt(row, col));
-					JOptionPane.showMessageDialog(null, vNum);
-					
+					//JOptionPane.showMessageDialog(null, vNum);
+
+					Video v = model.selectByVideoNum(vNum);
+					//해당하는 비디오 정보를 화면에 출력
+					tfVideoNum.setText(String.valueOf(v.getVideoNo()));
+					comVideoJanre.setSelectedItem(v.getGenre());
+					tfVideoTitle.setText(v.getVideoName());
+					tfVideoDirector.setText(v.getDirector());
+					tfVideoActor.setText(v.getActor());
+					taVideoContent.setText(v.getExp());
 					 
 				}catch(Exception ex){
 					System.out.println("실패 : "+ ex.getMessage());
@@ -139,7 +147,9 @@ public class VideoView extends JPanel
 		// 3. VideoModel 안에 insertVideo() 호출
 		try {
 			model.insertVideo(v, cnt);
+			System.out.println("수정 성공");
 			clearTextField ();
+			searchVideo();
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "입력실패");
 			e.printStackTrace();
@@ -147,14 +157,7 @@ public class VideoView extends JPanel
 
 	}
 
-	void clearTextField (){
-		tfVideoTitle.setText(null);
-		tfVideoDirector.setText(null);
-		tfVideoActor.setText(null);
-		taVideoContent.setText(null);
-	}
-	
-	public void initStyle(){   
+	public void initStyle(){
 		tfVideoNum.setEditable(false); // 입력하지 못하게 만듬.
 		tfInsertCount.setEditable(false);
 		
@@ -164,16 +167,58 @@ public class VideoView extends JPanel
 	// 수정 클릭시 - 비디오 정보 수정
 	public void modifyVideo(){
 		JOptionPane.showMessageDialog(null, "수정");
+		// 1. 사용자의 입력한 값 가져오기
+
+		int num = Integer.parseInt(tfVideoNum.getText());
+		String genre = (String) comVideoJanre.getSelectedItem(); // 콤보박스 데이터얻어오기
+		String title = tfVideoTitle.getText();
+		String director = tfVideoDirector.getText();
+		String actor = tfVideoActor.getText();
+		String ex = taVideoContent.getText();
+		// 2. 입력한 값들(1번)을 Video 클래스의 멤버지정
+		Video v = new Video();
+
+		v.setVideoNo(num);
+		v.setGenre(genre);
+		v.setVideoName(title);
+		v.setDirector(director);
+		v.setActor(actor);
+		v.setExp(ex);
+
+
+
+		// 3. VideoModel 안에 insertVideo() 호출
+		try {
+			model.modifyVideo(v);
+			System.out.println("수정 성공");
+			clearTextField ();
+			searchVideo();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "입력실패");
+			e.printStackTrace();
+		}
 	}
 	
 	// 삭제 클릭시 - 비디오 정보 삭제
 	public void deleteVideo(){
-		
-		JOptionPane.showMessageDialog(null, "삭제");
+		String num = tfVideoNum.getText();
+		try {
+			int result = model.delete(Integer.parseInt(num));
+			if(result == 1) {
+				JOptionPane.showMessageDialog(null, "삭제");
+			}
+
+			clearTextField();
+			searchVideo();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
 	}
 	
 	// 비디오현황검색
-		public void searchVideo(){
+	public void searchVideo(){
 			//1.사용자의 선택하거나 입력값을 얻어오기
 			//2.선택한 순번을 얻오오기
 			int idx = comVideoSearch.getSelectedIndex(); // 순번은 selected
@@ -297,12 +342,22 @@ public class VideoView extends JPanel
 		add(p_east);
 		
 	}
+
+	// 입력란 지우기
+	void clearTextField (){
+		tfVideoNum.setText(null);
+		comVideoJanre.setSelectedItem(null);
+		tfVideoTitle.setText(null);
+		tfVideoDirector.setText(null);
+		tfVideoActor.setText(null);
+		taVideoContent.setText(null);
+	}
 	
 	//화면에 테이블 붙이는 메소드 
 	class VideoTableModel extends AbstractTableModel { 
 		  
 		ArrayList data = new ArrayList();
-		String [] columnNames = {"비디오번호","제목","장르","감독","배우"};
+		String [] columnNames = {"비디오번호","장르","제목","감독","배우"};
 
 		//=============================================================
 		// 1. 기본적인 TabelModel  만들기

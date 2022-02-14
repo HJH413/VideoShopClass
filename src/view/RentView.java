@@ -1,5 +1,9 @@
 package  view;
 
+import model.dao.RentModel;
+import model.vo.RentalVideo;
+import model.vo.Video;
+
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -32,7 +36,7 @@ public class RentView extends JPanel
 
 	RentTableModel rentTM;
 
-
+	RentModel model;
 
 	//==============================================
 	//	 생성자 함수
@@ -40,13 +44,18 @@ public class RentView extends JPanel
 		addLayout();	//화면구성
 		eventProc();	//DB연결
 		connectDB();
+		selectList(); // 미납목록 출력
 	}
 
 	// DB 연결
 	void connectDB(){
-
+		try {
+			model = new RentModel();
+		} catch (Exception e) {
+			System.out.println("대여관리 연결 실패 : " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
-
 
 	/*	화면 구성   */
 	void addLayout(){
@@ -97,6 +106,18 @@ public class RentView extends JPanel
 
 		p_north.add(p_north_1);
 		p_north.add(p_north_2);
+	}
+
+	// 미반납 목록 상시표시
+	void selectList () {
+		ArrayList data = null;
+		try {
+			data = model.selectList();
+			rentTM.data = data;
+			rentTM.fireTableDataChanged();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	class RentTableModel extends AbstractTableModel {
@@ -178,23 +199,66 @@ public class RentView extends JPanel
 	}
 
 	// 반납버튼 눌렀을 때
-	public void returnClick(){
-		JOptionPane.showMessageDialog(null, "반납");
+	public void returnClick() {
 
-	}
+		int videoNum = Integer.parseInt(tfReturnVideoNum.getText());
 
-	// 대여 버튼 눌렀을 때
-	public void rentClick(){
-		JOptionPane.showMessageDialog(null, "대여");
+		try {
+			model.returnVideo(videoNum);
+			JOptionPane.showMessageDialog(null, "반납완료" );
 
+			tfRentVideoNum.setText(null);
+		} catch (Exception ex){
+			JOptionPane.showMessageDialog(null, "반납 실패 : " + ex.getMessage());
+		}
+
+		selectList();
 
 	}
 
 	// 전화번호입력후 엔터
 	public void rentSelectTel(){
+		//JOptionPane.showMessageDialog(null, "전화번호");
+		String tel = tfRentTel.getText();
 
-		JOptionPane.showMessageDialog(null, "전화번호");
+		try {
+			String result = model.telByReturn(tel);
+			tfRentCustName.setText(result);
+		} catch (Exception ex) {
+			System.out.println("검색 실패 : " + ex.getMessage());
+			JOptionPane.showMessageDialog(null, "검색");
+		}
+
 	}
+
+	// 대여 버튼 눌렀을 때
+	public void rentClick(){
+		//JOptionPane.showMessageDialog(null, "대여");
+
+		String tel = tfRentTel.getText();
+		int videoNum = Integer.parseInt(tfRentVideoNum.getText());
+
+		try {
+
+			int result = model.newRentalVideo(tel, videoNum);
+			if (result == 1) {
+				JOptionPane.showMessageDialog(null, "대여성공");
+
+				tfRentTel.setText(null);
+				tfRentCustName.setText(null);
+				tfRentVideoNum.setText(null);
+			}
+
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(null, "대여실패:" + ex.getMessage());
+			ex.printStackTrace();
+		}
+
+		selectList ();
+	}
+
+
+
 
 
 }
