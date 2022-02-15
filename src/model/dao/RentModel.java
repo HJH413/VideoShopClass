@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 
 public class RentModel {
-	String driver = "oracle.jdbc.driver.OracleDriver";
 	String url = "jdbc:oracle:thin:@127.0.0.1:1521:xe";
 	String user = "hjh";
 	String pass = "0175";
@@ -16,7 +15,7 @@ public class RentModel {
 	// 1. 드라이버로딩
 	public RentModel() throws Exception{
 
-		Class.forName(driver);
+		OracleConn.getInstance();
 	}
 
 	//반납 목록 출력

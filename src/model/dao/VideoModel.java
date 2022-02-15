@@ -11,14 +11,13 @@ import java.util.ArrayList;
 
 public class VideoModel implements VideoDao {
 
-	String driver = "oracle.jdbc.driver.OracleDriver";
 	String url = "jdbc:oracle:thin:@127.0.0.1:1521:xe";
 	String user = "hjh";
 	String pass = "0175";
 
 	public VideoModel() throws Exception {
 		// 1. 드라이버로딩
-		Class.forName(driver);
+		OracleConn.getInstance();
 	}
 
 	//비디오 입고

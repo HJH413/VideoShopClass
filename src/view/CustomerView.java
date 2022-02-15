@@ -27,7 +27,6 @@ public class CustomerView extends JPanel
 
 		try {
 			csDb = new CustomerModel();
-			System.out.println("드라이버 로딩 성공");
 		} catch (Exception e) {
 			System.out.println("드라이버 로딩 실패" + e.getMessage());
 			e.printStackTrace();

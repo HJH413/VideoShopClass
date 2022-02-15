@@ -10,15 +10,13 @@ import java.sql.ResultSet;
 
 public class CustomerModel implements CustomerDao{
 
-	String driver = "oracle.jdbc.driver.OracleDriver";
 	String url = "jdbc:oracle:thin:@127.0.0.1:1521:xe";
 	String user = "hjh";
 	String pass = "0175";
-	
-	
+
 	public CustomerModel() throws Exception{
 	 	// 1. 드라이버로딩
-		Class.forName(driver);
+		OracleConn.getInstance();
 	}
 	
 	public void insertCustomer(Customer vo) throws Exception{
